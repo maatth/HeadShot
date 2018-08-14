@@ -10,17 +10,22 @@ import UIKit
 import SpriteKit
 import GameplayKit
 
-class GameViewController: UIViewController {
+enum Difficulty {
+    case Easy
+    case Medium
+    case Hard
+    case Nightmare
+}
 
+class GameViewController: UIViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
-            // Load the SKScene from 'GameScene.sks'
             if let scene = SKScene(fileNamed: "GameScene") {
                 // Set the scale mode to scale to fit the window
                 scene.scaleMode = .aspectFill
-                
                 // Present the scene
                 view.presentScene(scene)
             }
@@ -29,7 +34,15 @@ class GameViewController: UIViewController {
             
             view.showsFPS = true
             view.showsNodeCount = true
+            view.showsPhysics = true
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        //self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        //self.navigationController?.setNavigationBarHidden(false, animated: false)
     }
 
     override var shouldAutorotate: Bool {
