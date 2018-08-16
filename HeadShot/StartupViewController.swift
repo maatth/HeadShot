@@ -30,9 +30,9 @@ class StartupViewController: UIViewController {
         let cochon2 = UIImage(named: "cochon2")!
         let cochon3 = UIImage(named: "cochon3")!
         let cochon4 = UIImage(named: "cochon4")!
-        let face1 = Face(name: "Cochon", photo1: cochon, photo2: cochon2, photo3: cochon3, photo4: cochon4, isEnemy: true)!
+        let face1 = Face(name: "Cochon", photo1: cochon, photo2: cochon2, photo3: cochon3, photo4: cochon4, isEnemy: true, life: 2)!
         let Longface = UIImage(named: "Longfaceold")!
-        let face2 = Face(name: "Long", photo1: Longface, photo2: Longface, photo3: Longface, photo4: Longface, isEnemy: false)!
+        let face2 = Face(name: "Long", photo1: Longface, photo2: Longface, photo3: Longface, photo4: Longface, isEnemy: false, life: 2)!
         
         gameModel.faces += [face1, face2]
     }

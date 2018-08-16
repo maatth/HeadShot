@@ -134,9 +134,10 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
         let photo3 = photo3ImageView.image
         let photo4 = photo4ImageView.image
         let isEnemy = isEnemySwitch.isOn
+        let life = 2
         
         // Set the face to be passed to FaceTableViewController after the unwind segue.
-        face = Face(name: name, photo1: photo1, photo2: photo2, photo3: photo3, photo4: photo4, isEnemy: isEnemy)
+        face = Face(name: name, photo1: photo1, photo2: photo2, photo3: photo3, photo4: photo4, isEnemy: isEnemy, life: life)
         
     }
     

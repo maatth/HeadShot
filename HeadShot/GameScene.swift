@@ -53,15 +53,11 @@ struct PhysicsCategory {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    //    private var label : SKLabelNode?
-    //    private var spinnyNode : SKShapeNode?
-    var player1Score = SKLabelNode()
-    var player2Score = SKLabelNode()
     var canon = SKSpriteNode()
-    var face = SKSpriteNode()
-    var tomatos = [SKSpriteNode()]
-    var angle = CGFloat(Double.pi)
-    var score = [0,0]
+    var spriteFaces = [SKSpriteNode]()
+    var gameFaces = gameModel.faces
+    var tomatos = [SKSpriteNode]()
+    var canonAngle = CGFloat(Double.pi)
     
     override func sceneDidLoad() {
     
@@ -69,20 +65,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         physicsWorld.contactDelegate = self
         
-        player1Score = self.childNode(withName: "Player1Score") as! SKLabelNode
-        player2Score = self.childNode(withName: "Player2Score") as! SKLabelNode
         canon = self.childNode(withName: "canon") as! SKSpriteNode
-        //face = self.childNode(withName: "face") as! SKSpriteNode
         
         //Add border
-        let rect = CGRect(origin: self.frame.origin, size: CGSize(width: self.frame.width, height: self.frame.height + 40.0))
+       
+        let lowerOrigin = CGPoint(x: self.frame.origin.x, y: self.frame.origin.y - 100)
+        let rect = CGRect(origin: lowerOrigin, size: CGSize(width: self.frame.width, height: self.frame.height + 200.0))
         let border = SKPhysicsBody.init(edgeLoopFrom: rect)
         border.friction = 0
         border.restitution = 1
         self.physicsBody = border
         
         //Add face
-        for (index, face) in gameModel.faces.enumerated() {
+        for (index, face) in gameFaces.enumerated() {
+            print("created : ", face.name)
             let texture = SKTexture(image: face.photo1!)
             let facesize = CGSize(width: 180, height: 240)
             let faceSprite = SKSpriteNode(texture: texture, size: facesize)
@@ -95,29 +91,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             faceSprite.physicsBody?.collisionBitMask = PhysicsCategory.None
             
             self.addChild(faceSprite)
+            spriteFaces.append(faceSprite)
             
             squeezeForever(sprite: faceSprite)
-            
-            moveRandomlyForever(sprite: faceSprite)
-            
+            moveRandomlyForever(sprite: faceSprite, face: face)
             changeFaceForever(sprite: faceSprite, face: face)
         }
-    }
-    
-    func changeFaceForever(sprite: SKSpriteNode, face: Face) {
-        let texture1 = SKTexture(image: face.photo1!)
-        let texture2 = SKTexture(image: face.photo2!)
-        let texture3 = SKTexture(image: face.photo3!)
-        let changeSequence = SKAction.sequence([
-            SKAction.setTexture(texture1),
-            SKAction.wait(forDuration: 1),
-            SKAction.setTexture(texture2),
-            SKAction.wait(forDuration: 1),
-            SKAction.setTexture(texture3),
-            SKAction.wait(forDuration: 1)
-            ])
-        let group = SKAction.repeatForever(SKAction.group([changeSequence]))
-        sprite.run(group)
     }
     
     func squeezeForever(sprite: SKSpriteNode) {
@@ -136,13 +115,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sprite.run(group)
     }
     
-    func moveRandomlyForever(sprite: SKSpriteNode) {
-        let randomDestination:CGPoint = CGPoint(x: randomX(), y: randomY())
+    func moveRandomlyForever(sprite: SKSpriteNode, face: Face) {
+        let randomDestination:CGPoint = CGPoint(x: randomX(), y: randomY(isEnemy: face.isEnemy))
         let move = SKAction.move(to: randomDestination, duration: 2)
-        let sequence = SKAction.sequence([move, SKAction.run({[unowned self] in self.moveRandomlyForever(sprite: sprite)})])
+        let sequence = SKAction.sequence([move, SKAction.run({[unowned self] in self.moveRandomlyForever(sprite: sprite, face: face)})])
         sprite.run(sequence)
     }
 
+    
+    func changeFaceForever(sprite: SKSpriteNode, face: Face) {
+        let texture1 = SKTexture(image: face.photo1!)
+        let texture2 = SKTexture(image: face.photo2!)
+        let texture3 = SKTexture(image: face.photo3!)
+        let changeSequence = SKAction.sequence([
+            SKAction.setTexture(texture1),
+            SKAction.wait(forDuration: 1),
+            SKAction.setTexture(texture2),
+            SKAction.wait(forDuration: 1),
+            SKAction.setTexture(texture3),
+            SKAction.wait(forDuration: 1)
+            ])
+        let group = SKAction.repeatForever(SKAction.group([changeSequence]))
+        sprite.run(group)
+    }
     
     func randomX() -> CGFloat {
         let frameWidth = Int(self.frame.size.width/2)
@@ -150,14 +145,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return CGFloat(rand.nextInt())
     }
     
-    func randomY() -> CGFloat {
-        let rand = GKRandomDistribution(lowestValue: 0, highestValue: Int(self.frame.size.height/2))
+    func randomY(isEnemy: Bool) -> CGFloat {
+        let highestValue = isEnemy ? Int(self.frame.size.height/2) : Int(self.frame.size.height/8)
+        let lowestValue = isEnemy ? Int(self.frame.size.height/8) : 0
+        let rand = GKRandomDistribution(lowestValue: lowestValue, highestValue: highestValue)
         return CGFloat(rand.nextInt())
     }
     
     func rotateCanon(to goal:CGPoint) {
-        angle = atan2(goal.y - (-self.frame.size.height/2), goal.x)
-        canon.run(SKAction.rotate(toAngle: angle, duration: 0.01))
+        canonAngle = atan2(goal.y - (-self.frame.size.height/2), goal.x)
+        canon.run(SKAction.rotate(toAngle: canonAngle, duration: 0.01))
     }
     
     
@@ -168,18 +165,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let tomatoOrigin = CGPoint(x: 0.0, y: -self.frame.size.height/2)
         let tomatoDirection = (goal - tomatoOrigin).normalized()
-        let canonLength = CGFloat(100)
+        let canonLength = CGFloat(130)
         tomato.position.x = tomatoOrigin.x + tomatoDirection.dx * canonLength
         tomato.position.y = tomatoOrigin.y + tomatoDirection.dy * canonLength
         
-        tomato.physicsBody = SKPhysicsBody(circleOfRadius: 10, center: CGPoint(x: 0.0, y: 0.0))
+        tomato.physicsBody = SKPhysicsBody(circleOfRadius: 20, center: CGPoint(x: 0.0, y: 0.0))
         tomato.physicsBody?.affectedByGravity = false
         tomato.physicsBody?.linearDamping = 0.0
  
         tomatos.append(tomato)
         self.addChild(tomato)
 
-        let tomatoSpeed = CGFloat(20.0)
+        let tomatoSpeed = CGFloat(80.0)
         tomato.physicsBody?.applyImpulse(tomatoDirection * tomatoSpeed)
         
     }
@@ -193,7 +190,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func touchUp(atPoint pos:CGPoint) {
-        //        self.physicsWorld.remove(tomatoCanonJoint)
         self.physicsWorld.removeAllJoints()
         fire(towards: pos)
     }
@@ -219,81 +215,106 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 tomato.removeFromParent()
             }
         }
+        
+        for face in spriteFaces {
+            if face.position.y < -self.frame.height/2 - face.size.height {
+                face.removeFromParent()
+                let index = Int(face.name!.replacingOccurrences(of: "Face_", with: ""))
+                spriteFaces.remove(at: index!)
+                gameFaces.remove(at: index!)
+                isGameOver()
+            }
+        }
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
+        
         let firstBody = contact.bodyA.node as! SKSpriteNode
         let secondBody = contact.bodyB.node as! SKSpriteNode
-        
+
         //add shockwave
         let shockwave = SKShapeNode(circleOfRadius: 1)
         shockwave.position = contact.contactPoint
         self.addChild(shockwave)
         shockwave.run(shockWaveAction)
-        
-        
+
+
         if (firstBody.name?.range(of:"Face") != nil && secondBody.name == "tomato") {
             collision(between: firstBody, and: secondBody)
         } else if (firstBody.name == "tomato" && secondBody.name?.range(of:"Face") != nil) {
             collision(between: secondBody, and: firstBody)
         }
+        
     }
     
-    func collision(between face: SKSpriteNode, and tomato: SKSpriteNode) {
+    func collision(between spriteFace: SKSpriteNode, and tomato: SKSpriteNode) {
         print("collision")
         
-        let index = Int(face.name!.replacingOccurrences(of: "Face_", with: ""))
-        let faceModel = gameModel.faces[index!]
-        let texture = SKTexture(image: faceModel.photo4!)
-        face.texture = texture
+        //get the 4e face
+        let index = Int(spriteFace.name!.replacingOccurrences(of: "Face_", with: ""))
+        let gameFace = gameFaces[index!]
+        let texture = SKTexture(image: gameFace.photo4!)
+        spriteFace.texture = texture
         
+        //add smashed tomato on the face
         let smashedTomato = SKSpriteNode(imageNamed: "smashedTomato")
         smashedTomato.zPosition = 10
         smashedTomato.size = CGSize(width: 120, height: 120)
-        face.addChild(smashedTomato)
+        spriteFace.addChild(smashedTomato)
+        
+        //add tomato particules
+        let particles = SKEmitterNode(fileNamed: "BloodParticules")!
+        particles.position = spriteFace.position
+        particles.zPosition = 3
+        addChild(particles)
+        particles.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
      
+        //make the tomato slide slowly along the face
         smashedTomato.run(waitSlideFadeAction)
         tomato.removeFromParent()
         
-        let particles = SKEmitterNode(fileNamed: "BloodParticules")!
-        particles.position = face.position
-        particles.zPosition = 3
-        addChild(particles)
-        particles.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
+        //remove one life
+        gameFace.life = gameFace.life - 1
+        print("life : ", gameFace.life)
+        
+        //fall down if hit two times by a tomato
+        if gameFace.life == 0 {
+            print("dead")
+            spriteFace.removeAllActions()
+            spriteFace.physicsBody?.contactTestBitMask = PhysicsCategory.None
+            spriteFace.physicsBody?.isDynamic = true
+            spriteFace.physicsBody?.affectedByGravity = true
+        }
+        
+    }
+    
+    private func isGameOver() {
+        let enemiesLeft = gameFaces.filter({$0.isEnemy})
+        let friendsLeft = gameFaces.filter({!$0.isEnemy})
+      
+        if enemiesLeft.count == 0 {
+            print("Victory !")
+        }
+        if friendsLeft.count == 0 {
+            print("Game Over")
+        }
+        
     }
     
     // MARK: - Helpers
-    func breakBlock(_ node: SKNode) {
-        //run(bambooBreakSound)
-        let particles = SKEmitterNode(fileNamed: "BloodParticules")!
-        particles.position = node.position
-        particles.zPosition = 3
-        addChild(particles)
-        particles.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
-        node.removeFromParent()
-    }
-    
     let shockWaveAction: SKAction = {
-        let growAndFadeAction = SKAction.group([SKAction.scale(to: 50, duration: 0.5),
-                                                SKAction.fadeOut(withDuration: 0.5)])
-        
-        let sequence = SKAction.sequence([growAndFadeAction,
-                                          SKAction.removeFromParent()])
-        
+        let growAndFadeAction = SKAction.group([SKAction.scale(to: 50, duration: 0.5), SKAction.fadeOut(withDuration: 0.5)])
+        let sequence = SKAction.sequence([growAndFadeAction, SKAction.removeFromParent()])
         return sequence
     }()
     
     let waitSlideFadeAction: SKAction = {
         let wait = SKAction.wait(forDuration: 2.0)
-        let slideDownAction = SKAction.moveBy(x: 0, y: -80, duration: 0.5)
+        let slideDownAction = SKAction.moveBy(x: 0, y: -80, duration: 5)
         let fadeOutAction = SKAction.fadeOut(withDuration: 0.5)
-        
         let sequence = SKAction.sequence([wait, slideDownAction, fadeOutAction, SKAction.removeFromParent()])
-        
         return sequence
     }()
-    
-    
     
 }
 

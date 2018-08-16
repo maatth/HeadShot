@@ -9,6 +9,7 @@ class Face {
     var photo3: UIImage?
     var photo4: UIImage?
     var isEnemy: Bool
+    var life: Int
     
     // MARK: Archiving Paths
     
@@ -26,7 +27,7 @@ class Face {
     
     // MARK: Initialization
     
-    init?(name: String, photo1: UIImage?, photo2: UIImage?, photo3: UIImage?, photo4: UIImage?, isEnemy: Bool) {
+    init?(name: String, photo1: UIImage?, photo2: UIImage?, photo3: UIImage?, photo4: UIImage?, isEnemy: Bool, life: Int) {
         print("init of \(name)")
         self.name = name
         self.photo1 = photo1
@@ -34,6 +35,7 @@ class Face {
         self.photo3 = photo3
         self.photo4 = photo4
         self.isEnemy = isEnemy
+        self.life = life
         
         //super.init()
         
