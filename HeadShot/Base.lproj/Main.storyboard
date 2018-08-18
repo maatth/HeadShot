@@ -61,10 +61,20 @@
                                     <segue destination="AGV-Ee-XJE" kind="show" identifier="configure" id="0Rz-DI-1oE"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rLH-dB-7CX">
+                                <rect key="frame" x="137" y="98" width="101" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="2Kp-jH-2b5"/>
+                    <connections>
+                        <outlet property="messageLabel" destination="rLH-dB-7CX" id="70b-ef-QVs"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0N0-wk-Caw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -284,7 +294,7 @@
         <!--Navigation Controller-->
         <scene sceneID="7oU-ij-CpP">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gjG-0y-NHJ" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" modalTransitionStyle="partialCurl" id="gjG-0y-NHJ" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ooa-Cq-NhO">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
@@ -297,11 +307,11 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NNu-d7-SyH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1234" y="134"/>
+            <point key="canvasLocation" x="-1321" y="134"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="VBO-xh-8cf"/>
+        <segue reference="4C2-Ea-Xaf"/>
         <segue reference="Pwn-ku-pnQ"/>
     </inferredMetricsTieBreakers>
 </document>
