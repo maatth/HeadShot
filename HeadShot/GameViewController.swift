@@ -17,6 +17,12 @@ enum Difficulty {
     case Nightmare
 }
 
+enum GameState {
+    case Starting
+    case Winner
+    case Loser
+}
+
 class GameViewController: UIViewController {
     
     override func viewDidLoad() {

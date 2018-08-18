@@ -12,12 +12,24 @@ var gameModel = GameModel()
 
 class StartupViewController: UIViewController {
     
+    @IBOutlet weak var messageLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("hello")
-        
+     
         loadSampleFaces()
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        switch gameModel.gameState {
+        case .Starting:
+            messageLabel.text = ""
+        case .Winner:
+            messageLabel.text = "You win :)"
+        case .Loser:
+            messageLabel.text = "You lose :("
+        }
     }
 
     override func didReceiveMemoryWarning() {

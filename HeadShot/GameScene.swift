@@ -52,7 +52,6 @@ struct PhysicsCategory {
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    
     var canon = SKSpriteNode()
     var spriteFaces = [SKSpriteNode]()
     var gameFaces = gameModel.faces
@@ -294,9 +293,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       
         if enemiesLeft.count == 0 {
             print("Victory !")
+            gameModel.gameState = .Winner
+            if let navcon = self.view!.window!.rootViewController as? UINavigationController {
+                navcon.popViewController(animated: true)
+                //self.view!.window!.rootViewController!.present(StartupViewController(), animated: true, completion: nil) //ca frezze
+            }
         }
         if friendsLeft.count == 0 {
             print("Game Over")
+            gameModel.gameState = .Loser
+            if let navcon = self.view!.window!.rootViewController as? UINavigationController {
+                navcon.popViewController(animated: true)
+                //self.view!.window!.rootViewController!.present(StartupViewController(), animated: true, completion: nil) //ca frezze
+            }
+            
         }
         
     }

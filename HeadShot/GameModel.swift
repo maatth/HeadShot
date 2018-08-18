@@ -11,4 +11,5 @@ import Foundation
 class GameModel {
     var faces = [Face]()
     var difficulty = Difficulty.Medium
+    var gameState = GameState.Starting
 }
