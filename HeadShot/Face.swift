@@ -1,6 +1,6 @@
 import UIKit
 
-class Face {
+struct Face {
     
     // MARK: Properties
     var name: String

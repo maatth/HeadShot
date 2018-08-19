@@ -66,6 +66,5 @@ class StartupViewController: UIViewController {
         }
         
     }
-    
 
 }

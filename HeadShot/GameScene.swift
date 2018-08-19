@@ -42,8 +42,6 @@ extension CGVector {
     }
 }
 
-
-
 struct PhysicsCategory {
     static let None : UInt32 = 0
     static let All : UInt32 =  UInt32.max
@@ -54,11 +52,19 @@ struct PhysicsCategory {
 class GameScene: SKScene, SKPhysicsContactDelegate {
     var canon = SKSpriteNode()
     var spriteFaces = [SKSpriteNode]()
-    var gameFaces = gameModel.faces
+    var currentGameModel = gameModel
+    //var currentGameModel.faces = currentGameModel.faces
     var tomatos = [SKSpriteNode]()
     var canonAngle = CGFloat(Double.pi)
     
     override func sceneDidLoad() {
+        
+        gameModel.faces[0].life = 4
+        var currentGameModel = gameModel
+        currentGameModel.faces[0].life = 9
+        print("gameModel", gameModel.faces[0].life)
+        print("sa copie", currentGameModel.faces[0].life)
+        
     
         self.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0)
         
@@ -76,7 +82,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsBody = border
         
         //Add face
-        for (index, face) in gameFaces.enumerated() {
+        for (index, face) in currentGameModel.faces.enumerated() {
             print("created : ", face.name)
             let texture = SKTexture(image: face.photo1!)
             let facesize = CGSize(width: 180, height: 240)
@@ -220,7 +226,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 face.removeFromParent()
                 let index = Int(face.name!.replacingOccurrences(of: "Face_", with: ""))
                 spriteFaces.remove(at: index!)
-                gameFaces.remove(at: index!)
+                currentGameModel.faces.remove(at: index!)
                 isGameOver()
             }
         }
@@ -251,8 +257,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //get the 4e face
         let index = Int(spriteFace.name!.replacingOccurrences(of: "Face_", with: ""))
-        let gameFace = gameFaces[index!]
-        let texture = SKTexture(image: gameFace.photo4!)
+        let texture = SKTexture(image: gameModel.faces[index!].photo4!)
         spriteFace.texture = texture
         
         //add smashed tomato on the face
@@ -273,11 +278,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         tomato.removeFromParent()
         
         //remove one life
-        gameFace.life = gameFace.life - 1
-        print("life : ", gameFace.life)
+        print("life avant: ", currentGameModel.faces[index!].life)
+        currentGameModel.faces[index!].life = currentGameModel.faces[index!].life - 1
+        print("life apres: ", currentGameModel.faces[index!].life)
         
         //fall down if hit two times by a tomato
-        if gameFace.life == 0 {
+        if currentGameModel.faces[index!].life == 0 {
             print("dead")
             spriteFace.removeAllActions()
             spriteFace.physicsBody?.contactTestBitMask = PhysicsCategory.None
@@ -288,26 +294,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func isGameOver() {
-        let enemiesLeft = gameFaces.filter({$0.isEnemy})
-        let friendsLeft = gameFaces.filter({!$0.isEnemy})
+        let enemiesLeft = currentGameModel.faces.filter({$0.isEnemy})
+        let friendsLeft = currentGameModel.faces.filter({!$0.isEnemy})
       
         if enemiesLeft.count == 0 {
-            print("Victory !")
+            print("Victory")
             gameModel.gameState = .Winner
-            if let navcon = self.view!.window!.rootViewController as? UINavigationController {
-                navcon.popViewController(animated: true)
-                //self.view!.window!.rootViewController!.present(StartupViewController(), animated: true, completion: nil) //ca frezze
-            }
         }
         if friendsLeft.count == 0 {
             print("Game Over")
             gameModel.gameState = .Loser
-            if let navcon = self.view!.window!.rootViewController as? UINavigationController {
-                navcon.popViewController(animated: true)
-                //self.view!.window!.rootViewController!.present(StartupViewController(), animated: true, completion: nil) //ca frezze
-            }
-            
         }
+        let navcon = self.view!.window!.rootViewController! as! UINavigationController
+        navcon.popViewController(animated: true)
         
     }
     

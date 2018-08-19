@@ -8,7 +8,7 @@
 
 import Foundation
 
-class GameModel {
+struct GameModel {
     var faces = [Face]()
     var difficulty = Difficulty.Medium
     var gameState = GameState.Starting
