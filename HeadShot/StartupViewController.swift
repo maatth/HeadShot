@@ -17,8 +17,27 @@ class StartupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
      
-        loadSampleFaces()
-        // Do any additional setup after loading the view.
+        // Load any saved faces, otherwise load sample data.
+        if let loadedGameModel = loadFaces() {
+            gameModel = loadedGameModel
+        }
+        else {
+            loadSampleFaces()
+        }
+        
+    }
+    
+    func loadFaces() -> GameModel? {
+        guard let data = NSKeyedUnarchiver.unarchiveObject(withFile: Face.ArchiveURL.path) as? Data else { return nil }
+        do {
+            let faces = try PropertyListDecoder().decode(GameModel.self, from: data)
+            print("loadFaces sucess")
+            return faces
+        } catch {
+            print(error)
+            print("loadFaces failed")
+            return nil
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {

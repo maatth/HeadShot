@@ -119,8 +119,18 @@ class FaceTableViewController: UITableViewController, UINavigationControllerDele
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
             }
             
-            // Save the meals.
-            //saves()
+            // Save the faces.
+            saveFaces()
+        }
+    }
+    
+    func saveFaces() {
+        do {
+            let data = try PropertyListEncoder().encode(gameModel)
+            let success = NSKeyedArchiver.archiveRootObject(data, toFile: Face.ArchiveURL.path)
+            print(success ? "Successful save" : "Save Failed")
+        } catch {
+            print("Save Failed")
         }
     }
 

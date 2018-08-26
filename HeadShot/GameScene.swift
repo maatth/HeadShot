@@ -58,14 +58,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var canonAngle = CGFloat(Double.pi)
     
     override func sceneDidLoad() {
-        
-        gameModel.faces[0].life = 4
-        var currentGameModel = gameModel
-        currentGameModel.faces[0].life = 9
-        print("gameModel", gameModel.faces[0].life)
-        print("sa copie", currentGameModel.faces[0].life)
-        
-    
         self.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0)
         
         physicsWorld.contactDelegate = self

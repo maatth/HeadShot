@@ -143,10 +143,6 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
     
     //MARK: Actions
     @IBAction func selectImageFromPhotoLibrary(_ sender: UITapGestureRecognizer) {
-        currentTag = (sender.view?.tag)!
-        print("hello")
-        print(currentTag)
-        
         // Hide the keyboard.
         nameTextField.resignFirstResponder()
         

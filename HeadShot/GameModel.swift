@@ -8,8 +8,15 @@
 
 import Foundation
 
-struct GameModel {
+struct GameModel: Codable {
     var faces = [Face]()
     var difficulty = Difficulty.Medium
     var gameState = GameState.Starting
+    
+    //MARK: Persistance
+    //CodingKeys prevents difficulty and gameState to be saved
+    enum CodingKeys: String, CodingKey {
+        case faces
+    }
+
 }
