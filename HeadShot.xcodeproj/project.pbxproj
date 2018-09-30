@@ -16,6 +16,7 @@
 		85443D5A1F575E650035EB5B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85443D581F575E650035EB5B /* Main.storyboard */; };
 		85443D5F1F575E650035EB5B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85443D5D1F575E650035EB5B /* LaunchScreen.storyboard */; };
 		85443D671F5893260035EB5B /* LLPIXEL3.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 85443D661F5893260035EB5B /* LLPIXEL3.ttf */; };
+		8574865D21543B1200A623C6 /* gomarice_no_continue.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8574865C215438CC00A623C6 /* gomarice_no_continue.ttf */; };
 		85845F3620D1C11B009B18B8 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 85845F3420D1C11B009B18B8 /* spark.png */; };
 		85845F4E20D3050E009B18B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85845F4D20D3050E009B18B8 /* Assets.xcassets */; };
 		85845F5020D30617009B18B8 /* BloodParticules.sks in Resources */ = {isa = PBXBuildFile; fileRef = 85845F4F20D30617009B18B8 /* BloodParticules.sks */; };
@@ -39,6 +40,7 @@
 		85443D5E1F575E650035EB5B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		85443D601F575E650035EB5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		85443D661F5893260035EB5B /* LLPIXEL3.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = LLPIXEL3.ttf; sourceTree = "<group>"; };
+		8574865C215438CC00A623C6 /* gomarice_no_continue.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gomarice_no_continue.ttf; sourceTree = "<group>"; };
 		85845F3420D1C11B009B18B8 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		85845F4D20D3050E009B18B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		85845F4F20D30617009B18B8 /* BloodParticules.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = BloodParticules.sks; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 				85845F4D20D3050E009B18B8 /* Assets.xcassets */,
 				85845F3420D1C11B009B18B8 /* spark.png */,
 				85443D661F5893260035EB5B /* LLPIXEL3.ttf */,
+				8574865C215438CC00A623C6 /* gomarice_no_continue.ttf */,
 				85443D601F575E650035EB5B /* Info.plist */,
 				85861D5D20E97138005671A9 /* supporting files */,
 			);
@@ -174,6 +177,7 @@
 			files = (
 				85443D5A1F575E650035EB5B /* Main.storyboard in Resources */,
 				85443D671F5893260035EB5B /* LLPIXEL3.ttf in Resources */,
+				8574865D21543B1200A623C6 /* gomarice_no_continue.ttf in Resources */,
 				85845F5020D30617009B18B8 /* BloodParticules.sks in Resources */,
 				85845F3620D1C11B009B18B8 /* spark.png in Resources */,
 				85374686211EEC3E0085FD4E /* GameScene.sks in Resources */,

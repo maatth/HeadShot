@@ -13,6 +13,7 @@ class FaceTableViewController: UITableViewController, UINavigationControllerDele
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.delegate = self
+        view.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0)
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -41,7 +42,10 @@ class FaceTableViewController: UITableViewController, UINavigationControllerDele
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "FaceTableViewCellID", for: indexPath) as! FaceTableViewCell
+        
+        cell.backgroundColor = UIColor.clear
         
         let face = gameModel.faces[indexPath.row]
         

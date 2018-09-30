@@ -42,6 +42,11 @@ extension CGVector {
     }
 }
 
+func random(from lowestValue:Int, to highestValue:Int) -> CGFloat {
+    let rand = GKRandomDistribution(lowestValue: lowestValue, highestValue: highestValue)
+    return CGFloat(rand.nextInt())
+}
+
 struct PhysicsCategory {
     static let None : UInt32 = 0
     static let All : UInt32 =  UInt32.max
@@ -57,6 +62,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var tomatos = [SKSpriteNode]()
     var canonAngle = CGFloat(Double.pi)
     
+    var frameWidth = 0
+    var frameHeight = 0
+    
     override func sceneDidLoad() {
         self.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0)
         
@@ -65,13 +73,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         canon = self.childNode(withName: "canon") as! SKSpriteNode
         
         //Add border
-       
         let lowerOrigin = CGPoint(x: self.frame.origin.x, y: self.frame.origin.y - 100)
         let rect = CGRect(origin: lowerOrigin, size: CGSize(width: self.frame.width, height: self.frame.height + 200.0))
         let border = SKPhysicsBody.init(edgeLoopFrom: rect)
         border.friction = 0
         border.restitution = 1
         self.physicsBody = border
+        
+        frameWidth = Int(self.frame.size.width/2)
+        frameHeight = Int(self.frame.size.height/2)
+        
+        //Add clouds
+        addClouds(numberOfClouds: 4)
         
         //Add face
         for (index, face) in currentGameModel.faces.enumerated() {
@@ -80,6 +93,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let facesize = CGSize(width: 180, height: 240)
             let faceSprite = SKSpriteNode(texture: texture, size: facesize)
             faceSprite.name = "Face_" + String(index)
+            faceSprite.zPosition = 1
             
             faceSprite.physicsBody = SKPhysicsBody(circleOfRadius: faceSprite.size.width/2)
             faceSprite.physicsBody?.isDynamic = false
@@ -94,6 +108,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             moveRandomlyForever(sprite: faceSprite, face: face)
             changeFaceForever(sprite: faceSprite, face: face)
         }
+    }
+    
+    func addClouds(numberOfClouds:Int) {
+        for index in 1...numberOfClouds {
+            print("creating : cloud " + String(index))
+            let cloud = SKSpriteNode(imageNamed: "Cloud")
+            cloud.name = "cloud" + String(index)
+            cloud.zPosition = 0
+            self.addChild(cloud)
+            moveRandomlyAndFadeForever(sprite: cloud)
+        }
+       
+    }
+    
+    func moveRandomlyAndFadeForever(sprite: SKSpriteNode) {
+        sprite.size = CGSize(width: random(from: 200, to: 800), height: random(from: 100, to: 300))
+        
+        let randomOrigin:CGPoint = CGPoint(x: random(from: -frameWidth, to: frameWidth), y: random(from: -frameHeight + 200, to: frameHeight))
+        let goToStartPositionAction = SKAction.move(to: randomOrigin, duration: 0)
+        
+        let randomTime = TimeInterval(random(from: 3, to: 6))
+        let slideAction = SKAction.moveBy(x: random(from: -200, to: 200), y: 0, duration: randomTime)
+        let fadeInAction = SKAction.fadeIn(withDuration: randomTime)
+        let slideAndFadeInAction = SKAction.group([slideAction, fadeInAction])
+        
+        let fadeOutAction = SKAction.fadeOut(withDuration: randomTime)
+        let slideAndFadeOutAction = SKAction.group([slideAction, fadeOutAction])
+    
+        let sequence = SKAction.sequence([goToStartPositionAction,slideAndFadeInAction, slideAndFadeOutAction, SKAction.run({[unowned self] in self.moveRandomlyAndFadeForever(sprite: sprite)})])
+        sprite.run(sequence)
     }
     
     func squeezeForever(sprite: SKSpriteNode) {
@@ -113,7 +157,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func moveRandomlyForever(sprite: SKSpriteNode, face: Face) {
-        let randomDestination:CGPoint = CGPoint(x: randomX(), y: randomY(isEnemy: face.isEnemy))
+        let randomDestination:CGPoint
+        if face.isEnemy {
+            randomDestination = CGPoint(x: random(from: -frameWidth, to: frameWidth), y: random(from: Int(self.frame.size.height/8), to: Int(self.frame.size.height/2)))
+        } else {
+            randomDestination = CGPoint(x: random(from: -frameWidth, to: frameWidth), y: random(from: 0, to: Int(self.frame.size.height/8)))
+        }
+        
         let move = SKAction.move(to: randomDestination, duration: 2)
         let sequence = SKAction.sequence([move, SKAction.run({[unowned self] in self.moveRandomlyForever(sprite: sprite, face: face)})])
         sprite.run(sequence)
@@ -136,18 +186,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sprite.run(group)
     }
     
-    func randomX() -> CGFloat {
-        let frameWidth = Int(self.frame.size.width/2)
-        let rand = GKRandomDistribution(lowestValue: -frameWidth, highestValue: frameWidth)
-        return CGFloat(rand.nextInt())
-    }
-    
-    func randomY(isEnemy: Bool) -> CGFloat {
-        let highestValue = isEnemy ? Int(self.frame.size.height/2) : Int(self.frame.size.height/8)
-        let lowestValue = isEnemy ? Int(self.frame.size.height/8) : 0
-        let rand = GKRandomDistribution(lowestValue: lowestValue, highestValue: highestValue)
-        return CGFloat(rand.nextInt())
-    }
     
     func rotateCanon(to goal:CGPoint) {
         canonAngle = atan2(goal.y - (-self.frame.size.height/2), goal.x)
@@ -159,6 +197,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let tomato = SKSpriteNode(imageNamed: "tomato")
         tomato.size = CGSize(width: 80, height: 80)
         tomato.name = "tomato"
+        tomato.zPosition = 2
 
         let tomatoOrigin = CGPoint(x: 0.0, y: -self.frame.size.height/2)
         let tomatoDirection = (goal - tomatoOrigin).normalized()
@@ -237,14 +276,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
         if (firstBody.name?.range(of:"Face") != nil && secondBody.name == "tomato") {
-            collision(between: firstBody, and: secondBody)
+            collision(between: firstBody, and: secondBody, like:contact.contactNormal)
         } else if (firstBody.name == "tomato" && secondBody.name?.range(of:"Face") != nil) {
-            collision(between: secondBody, and: firstBody)
+            collision(between: secondBody, and: firstBody, like:contact.contactNormal)
         }
         
     }
     
-    func collision(between spriteFace: SKSpriteNode, and tomato: SKSpriteNode) {
+    func collision(between spriteFace: SKSpriteNode, and tomato: SKSpriteNode, like contactNormal: CGVector) {
         print("collision")
         
         //get the 4e face
@@ -256,17 +295,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let smashedTomato = SKSpriteNode(imageNamed: "smashedTomato")
         smashedTomato.zPosition = 10
         smashedTomato.size = CGSize(width: 120, height: 120)
+        smashedTomato.position.x = contactNormal.dx * spriteFace.size.width/3.7
+        smashedTomato.position.y = contactNormal.dy * spriteFace.size.width/3.7
         spriteFace.addChild(smashedTomato)
         
         //add tomato particules
         let particles = SKEmitterNode(fileNamed: "BloodParticules")!
         particles.position = spriteFace.position
         particles.zPosition = 3
+        particles.emissionAngle = atan2(contactNormal.dy,contactNormal.dx)//inverser les particules 
         addChild(particles)
         particles.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
      
         //make the tomato slide slowly along the face
-        smashedTomato.run(waitSlideFadeAction)
+        //smashedTomato.run(waitSlideFadeAction)
         tomato.removeFromParent()
         
         //remove one life
@@ -315,6 +357,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let fadeOutAction = SKAction.fadeOut(withDuration: 0.5)
         let sequence = SKAction.sequence([wait, slideDownAction, fadeOutAction, SKAction.removeFromParent()])
         return sequence
+    }()
+    
+    let slideFadeAction: SKAction = {
+        let slideRightAction = SKAction.moveBy(x: random(from: -80, to: 80), y: 0, duration: TimeInterval(random(from: 20, to: 22)))
+        let fadeOutAction = SKAction.fadeOut(withDuration: 30)
+        let sequence = SKAction.sequence([slideRightAction, fadeOutAction, SKAction.removeFromParent()])
+        return sequence //changer l'alpha, rendre random pour chaque nuage
     }()
     
 }

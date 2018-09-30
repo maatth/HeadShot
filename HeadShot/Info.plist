@@ -38,6 +38,7 @@
 	</array>
 	<key>UIAppFonts</key>
 	<array>
+		<string>gomarice_no_continue.ttf</string>
 		<string>LLPIXEL3.ttf</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>

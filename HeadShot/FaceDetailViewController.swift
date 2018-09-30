@@ -24,6 +24,7 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0) //sky blue
         
         nameTextField.delegate = self
         
@@ -86,6 +87,7 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
         }
         let selectedImage = selectedImageOld.circle
         
+        
         if currentTag == 1 {
             photo1ImageView.image = selectedImage
         } else if currentTag == 2 {
@@ -143,6 +145,8 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
     
     //MARK: Actions
     @IBAction func selectImageFromPhotoLibrary(_ sender: UITapGestureRecognizer) {
+        currentTag = (sender.view?.tag)!
+        
         // Hide the keyboard.
         nameTextField.resignFirstResponder()
         
