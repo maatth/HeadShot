@@ -46,9 +46,11 @@ class GameViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        playSound(withFileNamed: "fastace.mp3", isLoop: true, withVolume: 0.3)
     }
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: false)
+        musicPlayer?.stop()
     }
 
     override var shouldAutorotate: Bool {

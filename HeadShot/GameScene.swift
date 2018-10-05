@@ -49,14 +49,16 @@ func random(from lowestValue:Int, to highestValue:Int) -> CGFloat {
 
 struct PhysicsCategory {
     static let None : UInt32 = 0
-    static let All : UInt32 =  UInt32.max
     static let Tomato : UInt32 = 1
     static let Face : UInt32 = 2
+    static let Border : UInt32 = 4
+    static let All : UInt32 =  UInt32.max
 }
+
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     var canon = SKSpriteNode()
-    var spriteFaces = [SKSpriteNode]()
+    //var spriteFaces = [SKSpriteNode]()
     var currentGameModel = gameModel
     //var currentGameModel.faces = currentGameModel.faces
     var tomatos = [SKSpriteNode]()
@@ -79,6 +81,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         border.friction = 0
         border.restitution = 1
         self.physicsBody = border
+        self.physicsBody!.categoryBitMask = PhysicsCategory.Border
+        self.physicsBody!.contactTestBitMask = PhysicsCategory.None
+        self.physicsBody!.collisionBitMask = PhysicsCategory.Tomato
+        
         
         frameWidth = Int(self.frame.size.width/2)
         frameHeight = Int(self.frame.size.height/2)
@@ -97,17 +103,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             faceSprite.physicsBody = SKPhysicsBody(circleOfRadius: faceSprite.size.width/2)
             faceSprite.physicsBody?.isDynamic = false
-            faceSprite.physicsBody?.categoryBitMask = PhysicsCategory.Face
-            faceSprite.physicsBody?.contactTestBitMask = PhysicsCategory.Tomato
-            faceSprite.physicsBody?.collisionBitMask = PhysicsCategory.None
+            faceSprite.physicsBody?.categoryBitMask = PhysicsCategory.Face //faceSprite belongs to Face category
+            faceSprite.physicsBody?.contactTestBitMask = PhysicsCategory.Tomato //we are notified when touching Tomato
+            faceSprite.physicsBody?.collisionBitMask = PhysicsCategory.None //won't bounce
             
             self.addChild(faceSprite)
-            spriteFaces.append(faceSprite)
+            //spriteFaces.append(faceSprite)
             
             squeezeForever(sprite: faceSprite)
             moveRandomlyForever(sprite: faceSprite, face: face)
             changeFaceForever(sprite: faceSprite, face: face)
         }
+        
+
     }
     
     func addClouds(numberOfClouds:Int) {
@@ -194,6 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func fire(towards goal : CGPoint) {
+        run(SKAction.playSoundFileNamed("cannonShot", waitForCompletion: false))
         let tomato = SKSpriteNode(imageNamed: "tomato")
         tomato.size = CGSize(width: 80, height: 80)
         tomato.name = "tomato"
@@ -208,6 +217,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         tomato.physicsBody = SKPhysicsBody(circleOfRadius: 20, center: CGPoint(x: 0.0, y: 0.0))
         tomato.physicsBody?.affectedByGravity = false
         tomato.physicsBody?.linearDamping = 0.0
+        tomato.physicsBody?.categoryBitMask = PhysicsCategory.Tomato //tomato belongs to Tomato category
+        tomato.physicsBody?.contactTestBitMask = PhysicsCategory.Face //we are notified when touching Tomato
+        tomato.physicsBody?.collisionBitMask = PhysicsCategory.Border //won't bounce ???????
  
         tomatos.append(tomato)
         self.addChild(tomato)
@@ -252,28 +264,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
-        for face in spriteFaces {
-            if face.position.y < -self.frame.height/2 - face.size.height {
-                face.removeFromParent()
-                let index = Int(face.name!.replacingOccurrences(of: "Face_", with: ""))
-                spriteFaces.remove(at: index!)
-                currentGameModel.faces.remove(at: index!)
-                isGameOver()
-            }
-        }
+//        for face in spriteFaces {
+//            if face.position.y < -self.frame.height/2 - face.size.height {
+//                face.removeFromParent()
+//                let index = Int(face.name!.replacingOccurrences(of: "Face_", with: ""))
+//                //print(index!)
+//                spriteFaces.remove(at: index!)
+//                currentGameModel.faces.remove(at: index!)
+//                isGameOver()
+//            }
+//        }
     }
     
+    //Is called when a collision is notified by a contactTestBitMask
     func didBegin(_ contact: SKPhysicsContact) {
-        
         let firstBody = contact.bodyA.node as! SKSpriteNode
         let secondBody = contact.bodyB.node as! SKSpriteNode
-
-        //add shockwave
-        let shockwave = SKShapeNode(circleOfRadius: 1)
-        shockwave.position = contact.contactPoint
-        self.addChild(shockwave)
-        shockwave.run(shockWaveAction)
-
 
         if (firstBody.name?.range(of:"Face") != nil && secondBody.name == "tomato") {
             collision(between: firstBody, and: secondBody, like:contact.contactNormal)
@@ -284,8 +290,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func collision(between spriteFace: SKSpriteNode, and tomato: SKSpriteNode, like contactNormal: CGVector) {
-        print("collision")
-        
         //get the 4e face
         let index = Int(spriteFace.name!.replacingOccurrences(of: "Face_", with: ""))
         let texture = SKTexture(image: gameModel.faces[index!].photo4!)
@@ -303,68 +307,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let particles = SKEmitterNode(fileNamed: "BloodParticules")!
         particles.position = spriteFace.position
         particles.zPosition = 3
-        particles.emissionAngle = atan2(contactNormal.dy,contactNormal.dx)//inverser les particules 
+        particles.emissionAngle = atan2(-contactNormal.dy,-contactNormal.dx)//inverser les particules 
         addChild(particles)
         particles.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
      
-        //make the tomato slide slowly along the face
-        //smashedTomato.run(waitSlideFadeAction)
+        run(SKAction.playSoundFileNamed("splash", waitForCompletion: false))
         tomato.removeFromParent()
         
         //remove one life
-        print("life avant: ", currentGameModel.faces[index!].life)
         currentGameModel.faces[index!].life = currentGameModel.faces[index!].life - 1
-        print("life apres: ", currentGameModel.faces[index!].life)
+        print("remaining life of face ", index!, " : ", currentGameModel.faces[index!].life)
         
         //fall down if hit two times by a tomato
         if currentGameModel.faces[index!].life == 0 {
-            print("dead")
             spriteFace.removeAllActions()
-            spriteFace.physicsBody?.contactTestBitMask = PhysicsCategory.None
-            spriteFace.physicsBody?.isDynamic = true
-            spriteFace.physicsBody?.affectedByGravity = true
+            spriteFace.physicsBody?.collisionBitMask = PhysicsCategory.None //will not bounce anymore
+            
+            spriteFace.physicsBody?.isDynamic = true //autorize applyForce works on it
+           
+            let fallDownAndDisappear: SKAction = {
+                let fallDown = SKAction.applyForce(CGVector(dx: 0, dy: -10), duration: 2)
+                let isGameOverAction = SKAction.run {isGameOver()}
+                let sequence = SKAction.sequence([fallDown, SKAction.removeFromParent(), isGameOverAction])
+                return sequence
+            }()
+            
+            spriteFace.run(fallDownAndDisappear)
         }
         
-    }
-    
-    private func isGameOver() {
-        let enemiesLeft = currentGameModel.faces.filter({$0.isEnemy})
-        let friendsLeft = currentGameModel.faces.filter({!$0.isEnemy})
-      
-        if enemiesLeft.count == 0 {
-            print("Victory")
-            gameModel.gameState = .Winner
+        func isGameOver() {
+            let enemiesAliveLeft = currentGameModel.faces.filter({$0.isEnemy && $0.life > 0})
+            let friendsAliveLeft = currentGameModel.faces.filter({!$0.isEnemy && $0.life > 0})
+            
+            if enemiesAliveLeft.count == 0 {
+                print("Victory")
+                gameModel.gameState = .Winner
+            }
+            if friendsAliveLeft.count == 0 {
+                print("Game Over")
+                gameModel.gameState = .Loser
+            }
+            let navcon = self.view!.window!.rootViewController! as! UINavigationController
+            navcon.popViewController(animated: true)
+            
         }
-        if friendsLeft.count == 0 {
-            print("Game Over")
-            gameModel.gameState = .Loser
-        }
-        let navcon = self.view!.window!.rootViewController! as! UINavigationController
-        navcon.popViewController(animated: true)
-        
     }
-    
-    // MARK: - Helpers
-    let shockWaveAction: SKAction = {
-        let growAndFadeAction = SKAction.group([SKAction.scale(to: 50, duration: 0.5), SKAction.fadeOut(withDuration: 0.5)])
-        let sequence = SKAction.sequence([growAndFadeAction, SKAction.removeFromParent()])
-        return sequence
-    }()
-    
-    let waitSlideFadeAction: SKAction = {
-        let wait = SKAction.wait(forDuration: 2.0)
-        let slideDownAction = SKAction.moveBy(x: 0, y: -80, duration: 5)
-        let fadeOutAction = SKAction.fadeOut(withDuration: 0.5)
-        let sequence = SKAction.sequence([wait, slideDownAction, fadeOutAction, SKAction.removeFromParent()])
-        return sequence
-    }()
-    
-    let slideFadeAction: SKAction = {
-        let slideRightAction = SKAction.moveBy(x: random(from: -80, to: 80), y: 0, duration: TimeInterval(random(from: 20, to: 22)))
-        let fadeOutAction = SKAction.fadeOut(withDuration: 30)
-        let sequence = SKAction.sequence([slideRightAction, fadeOutAction, SKAction.removeFromParent()])
-        return sequence //changer l'alpha, rendre random pour chaque nuage
-    }()
-    
+ 
 }
 
