@@ -9,6 +9,19 @@ import SpriteKit
 import GameplayKit
 
 extension UIImage {
+    /// Returns a image that fills in newSize
+    func resizedImage(newSize: CGSize) -> UIImage {
+        // Guard newSize is different
+        guard self.size != newSize else { return self }
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0);
+        self.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+        let newImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return newImage
+    }
+    
+    /// Returns a image cropped within a circle
     var circle: UIImage? {
         let length = min(size.width, size.height)
         let imageView = UIImageView(frame: CGRect(origin: .zero, size: CGSize(width: length, height: length)))
@@ -23,5 +36,11 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return result
     }
+    
+    
+    
+    
+    
+    
 }
 

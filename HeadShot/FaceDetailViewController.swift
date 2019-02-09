@@ -85,7 +85,8 @@ class FaceDetailViewController: UIViewController, UITextFieldDelegate, UIImagePi
         guard let selectedImageOld = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             fatalError("Expected a dictionary containing an image, but was provided the following: \(info)")
         }
-        let selectedImage = selectedImageOld.circle
+        let selectedImageResized = selectedImageOld.resizedImage(newSize: CGSize(width: 180, height: 240))
+        let selectedImage = selectedImageResized.circle
         
         
         if currentTag == 1 {

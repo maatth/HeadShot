@@ -78,15 +78,16 @@ class StartupViewController: UIViewController {
         
         switch gameModel.gameState {
         case .Starting:
-            messageLabel.text = ""
+            messageLabel.text = "HeadShot"
+            messageLabel.textColor = UIColor.black
             playSound(withFileNamed: "startupMusic.mp3", isLoop: true, withVolume: 1.0)
         case .Winner:
             messageLabel.text = "You win :)"
-            messageLabel.textColor = UIColor.red
+            messageLabel.textColor = UIColor.green
             playSound(withFileNamed: "game-won.mp3", isLoop: false, withVolume: 1.0)
         case .Loser:
             messageLabel.text = "You lose :("
-            messageLabel.textColor = UIColor.black
+            messageLabel.textColor = UIColor.red
             playSound(withFileNamed: "game-over.mp3", isLoop: false, withVolume: 1.0)
         }
     }

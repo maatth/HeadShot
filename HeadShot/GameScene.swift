@@ -60,6 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var canon = SKSpriteNode()
     //var spriteFaces = [SKSpriteNode]()
     var currentGameModel = gameModel
+    
     //var currentGameModel.faces = currentGameModel.faces
     var tomatos = [SKSpriteNode]()
     var canonAngle = CGFloat(Double.pi)
@@ -69,7 +70,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func sceneDidLoad() {
         self.backgroundColor = UIColor(red: 0.815686, green: 0.941176, blue: 1.0, alpha: 1.0)
-        
         physicsWorld.contactDelegate = self
         
         canon = self.childNode(withName: "canon") as! SKSpriteNode
@@ -111,7 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //spriteFaces.append(faceSprite)
             
             squeezeForever(sprite: faceSprite)
-            moveRandomlyForever(sprite: faceSprite, face: face)
+            moveRandomlyForever(sprite: faceSprite, face: face, difficulty: currentGameModel.difficulty)
             changeFaceForever(sprite: faceSprite, face: face)
         }
         
@@ -164,7 +164,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sprite.run(group)
     }
     
-    func moveRandomlyForever(sprite: SKSpriteNode, face: Face) {
+    func moveRandomlyForever(sprite: SKSpriteNode, face: Face, difficulty: Difficulty) {
+        var duration = 0.0
+        switch difficulty {
+            case .Easy: duration = 4.0
+            case .Medium: duration = 2.0
+            case .Hard: duration = 1.0
+            case .Nightmare: duration = 0.5
+        }
+        
         let randomDestination:CGPoint
         if face.isEnemy {
             randomDestination = CGPoint(x: random(from: -frameWidth, to: frameWidth), y: random(from: Int(self.frame.size.height/8), to: Int(self.frame.size.height/2)))
@@ -172,8 +180,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             randomDestination = CGPoint(x: random(from: -frameWidth, to: frameWidth), y: random(from: 0, to: Int(self.frame.size.height/8)))
         }
         
-        let move = SKAction.move(to: randomDestination, duration: 2)
-        let sequence = SKAction.sequence([move, SKAction.run({[unowned self] in self.moveRandomlyForever(sprite: sprite, face: face)})])
+        let move = SKAction.move(to: randomDestination, duration: duration)
+        let sequence = SKAction.sequence([move, SKAction.run({[unowned self] in self.moveRandomlyForever(sprite: sprite, face: face, difficulty: difficulty)})])
         sprite.run(sequence)
     }
 
